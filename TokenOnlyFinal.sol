@@ -1,13 +1,13 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.20;
 
 contract ERC20Interface
 {
-	function totalSupply() constant returns (uint supply) {}
-	function balanceOf(address _owner) constant returns (uint balance) {}
-	function transfer(address _to, uint _value) returns (bool success) {}
-	function transferFrom(address _from, address _to, uint _value) returns (bool success) {}
-	function approve(address _spender, uint _value) returns (bool success) {}
-	function allowance(address _owner, address _spender) constant returns (uint remaining) {}
+	function totalSupply() public view returns (uint supply) {}
+	function balanceOf(address _owner) public view returns (uint balance) {}
+	function transfer(address _to, uint _value) public returns (bool success) {}
+	function transferFrom(address _from, address _to, uint _value) public returns (bool success) {}
+	function approve(address _spender, uint _value) public returns (bool success) {}
+	function allowance(address _owner, address _spender) public view returns (uint remaining) {}
 	event Transfer(address indexed _from, address indexed _to, uint _value);
 	event Approval(address indexed _owner, address indexed _spender, uint _value);  
 }
@@ -27,7 +27,7 @@ contract RewardToken is ERC20Interface
 
 	event RewardAdded(address sender, uint );
 
-	function dividendsOwing(address account) internal returns(uint)
+	function dividendsOwing(address account) internal view returns(uint)
 	{
 		assert(totalDividendPoints >= balances[account].lastDividendPoints);
 		uint newDividendPoints = totalDividendPoints - balances[account].lastDividendPoints;
@@ -75,19 +75,19 @@ contract RewardToken is ERC20Interface
 		return true;
 	}
 
-	function balanceOf(address _owner) constant returns (uint balance)
+	function balanceOf(address _owner) public view returns (uint balance)
 	{
 		return balances[_owner].balance;
 	}
 
-	function approve(address _spender, uint _value) returns (bool success)
+	function approve(address _spender, uint _value) public returns (bool success)
 	{
 		allowed[msg.sender][_spender] = _value;
 		Approval(msg.sender, _spender, _value);
 		return true;
 	}
 
-	function allowance(address _owner, address _spender) constant returns (uint remaining)
+	function allowance(address _owner, address _spender) public view returns (uint remaining)
 	{
 		return allowed[_owner][_spender];
 	}
@@ -140,16 +140,6 @@ contract TestToken is RewardToken //change constructor name when changing this n
 		balances[msg.sender].balance -= _value;
 		totalSupply -= _value;
 		Burn(msg.sender, _value);
-		return true;
-	}
-
-	function approveAndCall(address _spender, uint _value, bytes _extraData) returns (bool success)
-	{
-		allowed[msg.sender][_spender] = _value;
-		Approval(msg.sender, _spender, _value);
-
-		if(!_spender.call(bytes4(bytes32(sha3("receiveApproval(address,uint,address,bytes)"))), msg.sender, _value, this, _extraData))
-			{ throw; }
 		return true;
 	}
 }
