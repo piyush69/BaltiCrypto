@@ -1,5 +1,5 @@
-# BaltiCrypto
-
+# BaltiCrypto 
+(Not maintained)
 
 # About
 
